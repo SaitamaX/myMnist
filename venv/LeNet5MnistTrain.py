@@ -47,5 +47,26 @@ conv3_b = gen_bias([120])
 
 h_conv2 = tf.nn.sigmoid(conv_2d(h_pool2, conv3_w, "VALID") + conv3_b)
 
+fc1_w = gen_weights([1 * 1 * 120, 84])
+fc1_b = gen_bias([84])
+
+h_conv2 = tf.reshape(h_conv2, [-1, 1 * 1 * 120])
+h_fcl = tf.sigmoid(tf.matmul(h_conv2, fc1_w) + fc1_b)
+
+fc2_w = gen_weights([84, 10])
+fc2_b = gen_bias([10])
+
+y_conv = tf.nn.softmax(tf.matmul(h_fcl, fc2_w) + fc2_b, name = "predict")
+y_ = tf.placeholder(tf.float32, [None, 10])
+
+# model training
+cross_entropy = -tf.reduce_sum(y_ * tf.log(y_conv))
+train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+
+correct_prediction = tf.equal(tf.arg_max(y_conv, 1), tf.arg_max(y_, 1))
+accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+
+# accuracy figure
+
 
 
